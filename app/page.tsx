@@ -1,29 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, ChangeEvent, FormEvent } from "react";
+import {
+  analyzePdf,
+  type AnalysisResult,
+  type FindingType,
+  type PdfKind,
+} from "@/lib/pdf/analyze";
 
-/* ============================================================
-   Tipler
-   ============================================================ */
-type PdfKind = "kart" | "fatura" | "banka" | "polise" | "diger";
 type Stage = "landing" | "analyzing" | "results" | "signup";
-type FindingType = "cancel" | "review" | "warning" | "keep" | "info";
-
-interface Finding {
-  icon: string;
-  name: string;
-  type: FindingType;
-  description: string;
-  amount?: string; // "₺249,99 / aylık" vb.
-  actionLabel?: string;
-  actionUrl?: string;
-}
-
-interface AnalysisResult {
-  kind: PdfKind;
-  totalSavings: number;
-  findings: Finding[];
-}
 
 /* ============================================================
    PDF Türü Tanımları (Landing kartları)
@@ -65,259 +50,6 @@ const PDF_KINDS: {
     sub: "Ne varsa yükle, biz bakarız",
   },
 ];
-
-/* ============================================================
-   Demo Bulgular
-   ============================================================ */
-function generateFindings(kind: PdfKind): AnalysisResult {
-  switch (kind) {
-    case "kart":
-      return {
-        kind,
-        totalSavings: 4356,
-        findings: [
-          {
-            icon: "🎬",
-            name: "Netflix Premium",
-            type: "review",
-            description:
-              "Premium plan — aile hesabı kullanmıyorsan Standart plana düşebilirsin.",
-            amount: "₺249,99 / aylık",
-            actionLabel: "Planı düşür",
-            actionUrl: "https://www.netflix.com/youraccount",
-          },
-          {
-            icon: "📺",
-            name: "Exxen",
-            type: "cancel",
-            description: "Son 3 aydır hiç izlenmemiş görünüyor.",
-            amount: "₺79,90 / aylık",
-            actionLabel: "İptal et",
-            actionUrl: "https://www.exxen.com/hesap/abonelik",
-          },
-          {
-            icon: "🎥",
-            name: "BluTV",
-            type: "cancel",
-            description:
-              "Çifte aboneliğin var: Netflix + BluTV. İçerikler büyük ölçüde örtüşüyor.",
-            amount: "₺89,90 / aylık",
-            actionLabel: "İptal et",
-            actionUrl: "https://www.blutv.com/hesap",
-          },
-          {
-            icon: "☁️",
-            name: "iCloud+ 200 GB",
-            type: "review",
-            description:
-              "Aile Paylaşımı aktif olsa kişi başı maliyetin neredeyse sıfıra iner.",
-            amount: "₺29,99 / aylık",
-            actionLabel: "Plan değiştir",
-            actionUrl: "https://www.icloud.com/settings",
-          },
-          {
-            icon: "🤖",
-            name: "ChatGPT Plus",
-            type: "review",
-            description:
-              "Son 30 günde ortalama 2 sorgu/gün — ücretsiz sürüm yetebilir.",
-            amount: "≈ ₺650 / aylık",
-            actionLabel: "Kullanımı incele",
-            actionUrl: "https://chat.openai.com/#settings/Subscription",
-          },
-          {
-            icon: "🦉",
-            name: "Duolingo Super",
-            type: "cancel",
-            description: "40 günlük streak kırılmış, uygulama 2 ay açılmamış.",
-            amount: "₺59,90 / aylık",
-            actionLabel: "İptal et",
-            actionUrl: "https://www.duolingo.com/settings/subscription",
-          },
-          {
-            icon: "🎧",
-            name: "Spotify Premium",
-            type: "keep",
-            description:
-              "Her gün ortalama 2 saat dinleme — fiyat/performans iyi.",
-            amount: "₺59,99 / aylık",
-          },
-        ],
-      };
-
-    case "fatura":
-      return {
-        kind,
-        totalSavings: 2124,
-        findings: [
-          {
-            icon: "☎️",
-            name: "Özel Hat Servisi",
-            type: "cancel",
-            description:
-              "Kampanya bitmiş, otomatik olarak aylık ücretli hizmete döndürülmüş.",
-            amount: "₺39,90 / aylık",
-            actionLabel: "Operatörü ara",
-          },
-          {
-            icon: "✉️",
-            name: "Ekstra SMS Paketi",
-            type: "cancel",
-            description: "Son 6 ayda paket kotanın %4'ü kullanılmış.",
-            amount: "₺19,90 / aylık",
-            actionLabel: "İptal et",
-          },
-          {
-            icon: "📺",
-            name: "Dijital TV Ekstra Paket",
-            type: "review",
-            description:
-              "Ekstra spor/belgesel paketi — kullanım verisi zayıf.",
-            amount: "₺49,00 / aylık",
-            actionLabel: "Paketi incele",
-          },
-          {
-            icon: "⚠️",
-            name: "Gecikme Faizi",
-            type: "warning",
-            description:
-              "Geçen dönem ödeme 3 gün gecikmiş. Otomatik ödemeye geçmek bunu sıfırlar.",
-            amount: "₺18,45 / tek sefer",
-            actionLabel: "Otomatik ödeme kur",
-          },
-          {
-            icon: "🎁",
-            name: "Sadakat Kampanyası",
-            type: "review",
-            description:
-              "Kampanya indirim hakkın kullanılmamış görünüyor.",
-            amount: "≈ ₺78,00 / aylık fayda",
-            actionLabel: "Kampanyaya başvur",
-          },
-        ],
-      };
-
-    case "banka":
-      return {
-        kind,
-        totalSavings: 1680,
-        findings: [
-          {
-            icon: "💳",
-            name: "Kredi Kartı Yıllık Aidatı",
-            type: "review",
-            description:
-              "Çağrı merkezini arayıp iptal talep edersen büyük ihtimalle düşürüyorlar.",
-            amount: "₺650,00 / yıllık",
-            actionLabel: "Bankayı ara",
-          },
-          {
-            icon: "🏦",
-            name: "Hesap İşletim Ücreti",
-            type: "warning",
-            description:
-              "Çeyrek dönemlik masraf — rakip bankalarda aynı hizmet ücretsiz.",
-            amount: "₺180,00 / 3 ayda bir",
-            actionLabel: "Karşılaştır",
-          },
-          {
-            icon: "🏋️",
-            name: "SMART SPOR — Eski Otomatik Talimat",
-            type: "cancel",
-            description:
-              "2 yıl önce iptal ettiğin spor salonundan çekim devam ediyor.",
-            amount: "₺149,00 / aylık",
-            actionLabel: "Talimatı iptal et",
-          },
-          {
-            icon: "💸",
-            name: "Havale / EFT Komisyonu",
-            type: "review",
-            description:
-              "Aynı bankadan yapılsa sıfır, dijital kanallarda sıfır olması lazım.",
-            amount: "₺49,50 / tek sefer",
-            actionLabel: "Dijitalden yap",
-          },
-          {
-            icon: "🏠",
-            name: "Konut Sigortası (DASK dışı)",
-            type: "cancel",
-            description:
-              "Aynı ev için başka bir poliçede de kapsamın var — çifte sigorta.",
-            amount: "₺45,00 / aylık",
-            actionLabel: "İptal et",
-          },
-        ],
-      };
-
-    case "polise":
-      return {
-        kind,
-        totalSavings: 3200,
-        findings: [
-          {
-            icon: "📈",
-            name: "Geçen Yıla Göre Zam",
-            type: "warning",
-            description:
-              "Prim %78 artmış, piyasa ortalaması %35. Yenilemeden önce teklif topla.",
-            amount: "+ ₺2.400,00 / yıllık fark",
-            actionLabel: "Teklif karşılaştır",
-          },
-          {
-            icon: "🦷",
-            name: "Kapsam Dışı: Diş Tedavisi",
-            type: "review",
-            description:
-              "Diş paketi poliçede yok — ayrı ek paket daha ucuza gelebilir.",
-            amount: "≈ ₺600,00 / yıllık",
-            actionLabel: "Ek paket sor",
-          },
-          {
-            icon: "🩺",
-            name: "Check-up Hakkı",
-            type: "info",
-            description:
-              "Yılda 1 kez ücretsiz check-up hakkın var, bu yıl kullanılmamış.",
-            actionLabel: "Randevu al",
-          },
-          {
-            icon: "🏷️",
-            name: "Rakip Fiyatı",
-            type: "review",
-            description:
-              "Aynı kapsama sahip 3 rakip poliçe ortalaması daha düşük.",
-            amount: "≈ ₺800,00 / yıllık tasarruf",
-            actionLabel: "Karşılaştır",
-          },
-        ],
-      };
-
-    case "diger":
-    default:
-      return {
-        kind: "diger",
-        totalSavings: 1250,
-        findings: [
-          {
-            icon: "🔎",
-            name: "PDF Türü Belirsiz",
-            type: "info",
-            description:
-              "Belgeyi tanıyamadık. Daha iyi analiz için kredi kartı ekstresi ya da telefon faturası yüklemeyi dene.",
-            actionLabel: "Yeniden yükle",
-          },
-          {
-            icon: "💡",
-            name: "Genel Tavsiye",
-            type: "info",
-            description:
-              "Son 3 ayın kart ekstrelerini birlikte yüklersen tekrar eden abonelikleri %90 doğrulukla tespit ediyoruz.",
-          },
-        ],
-      };
-  }
-}
 
 /* ============================================================
    Type → rozet etiket ve renk
@@ -432,36 +164,60 @@ export default function Home() {
     const file = e.target.files?.[0];
     e.target.value = ""; // reset (aynı dosyayı tekrar seçebilmek için)
     if (!file || !selectedKind) return;
-    startAnalysis(selectedKind);
+    void startAnalysis(file, selectedKind);
   };
 
-  const startAnalysis = (kind: PdfKind) => {
+  const startAnalysis = async (file: File, kind: PdfKind) => {
     setStage("analyzing");
     setAnalyzingStep(0);
+
+    // Adım animasyonu (toplam ~3.25s) — gerçek analizle paralel
     let step = 0;
     const interval = setInterval(() => {
       step += 1;
       setAnalyzingStep(step);
-      if (step >= 5) {
-        clearInterval(interval);
-        setTimeout(() => {
-          const r = generateFindings(kind);
-          setResult(r);
-          // localStorage güncelle — üyeler için freeUsed artırmıyoruz
-          const newCount = totalCount + 1;
-          const newFree = isMember ? freeUsed : freeUsed + 1;
-          try {
-            window.localStorage.setItem(COUNTER_KEY, String(newCount));
-            if (!isMember) {
-              window.localStorage.setItem(FREE_USED_KEY, String(newFree));
-            }
-          } catch {}
-          setTotalCount(newCount);
-          setFreeUsed(newFree);
-          setStage("results");
-        }, 400);
-      }
+      if (step >= 5) clearInterval(interval);
     }, 650);
+
+    // Gerçek analiz + minimum görünürlük süresi
+    const analysisPromise: Promise<AnalysisResult> = analyzePdf(file, kind).catch(
+      (err): AnalysisResult => {
+        console.warn("PDF analiz hatası:", err);
+        return {
+          kind,
+          totalSavings: 0,
+          findings: [
+            {
+              icon: "⚠️",
+              name: "Analiz başarısız oldu",
+              type: "warning",
+              description:
+                "PDF'ini işlerken bir şey ters gitti. Farklı bir PDF denemen ya da biraz sonra tekrar denemen yeterli olabilir.",
+            },
+          ],
+        };
+      }
+    );
+    const minDelay = new Promise<void>((r) => setTimeout(r, 3400));
+
+    const [r] = await Promise.all([analysisPromise, minDelay]);
+    clearInterval(interval);
+    setAnalyzingStep(5);
+
+    setResult(r);
+
+    // localStorage güncelle — üyeler için freeUsed artırmıyoruz
+    const newCount = totalCount + 1;
+    const newFree = isMember ? freeUsed : freeUsed + 1;
+    try {
+      window.localStorage.setItem(COUNTER_KEY, String(newCount));
+      if (!isMember) {
+        window.localStorage.setItem(FREE_USED_KEY, String(newFree));
+      }
+    } catch {}
+    setTotalCount(newCount);
+    setFreeUsed(newFree);
+    setStage("results");
   };
 
   const goLanding = () => {
@@ -788,18 +544,31 @@ function ResultsView({
         <div className="text-sm uppercase tracking-widest text-amber-300/80">
           Analiz Özeti
         </div>
-        <div className="mt-3 display-title text-4xl sm:text-6xl">
-          Yılda kurtarabileceğin{" "}
-          <span className="shine-text">
-            ₺{formatTRY(result.totalSavings)}
-          </span>
-        </div>
-        <div className="mt-3 text-white/65">
-          {result.findings.length} kalem bulundu · {" "}
-          {result.findings.filter((f) => f.type === "cancel").length} net
-          kaçak, {" "}
-          {result.findings.filter((f) => f.type === "review").length} incelenecek
-        </div>
+        {result.totalSavings > 0 ? (
+          <>
+            <div className="mt-3 display-title text-4xl sm:text-6xl">
+              Yılda kurtarabileceğin{" "}
+              <span className="shine-text">
+                ₺{formatTRY(result.totalSavings)}
+              </span>
+            </div>
+            <div className="mt-3 text-white/65">
+              {result.findings.length} abonelik tespit edildi · kullanmadıklarını
+              iptal ederek bu kadar kurtarabilirsin
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="mt-3 display-title text-3xl sm:text-5xl">
+              <span className="shine-text">Analiz tamamlandı</span>
+            </div>
+            <div className="mt-3 text-white/65">
+              {result.findings.length === 1
+                ? result.findings[0].name
+                : `${result.findings.length} kalem`}
+            </div>
+          </>
+        )}
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button onClick={onNew} className="btn-outline">
