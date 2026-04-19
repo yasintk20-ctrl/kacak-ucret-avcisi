@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1147 50%, #2d1b4e 100%);
+  background-attachment: fixed;
+  color: #ffffff;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Glass kart */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px;
+  transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.06);
+  box-shadow: 0 20px 60px -20px rgba(251, 191, 36, 0.3);
+}
+
+/* Altın glow */
+.gold-glow {
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.25),
+    0 20px 80px -20px rgba(251, 191, 36, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.gold-border {
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+/* Display başlık — Fraunces 900, tight tracking */
+.display-title {
+  font-family: var(--font-fraunces), serif;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+/* Shine efektli gradient başlık (altın parıltı) */
+.shine-text {
+  background: linear-gradient(
+    90deg,
+    #fbbf24 0%,
+    #fef3c7 25%,
+    #fbbf24 50%,
+    #f59e0b 75%,
+    #fbbf24 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shine 3.5s linear infinite;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Altın CTA butonu */
+.btn-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a1147;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 14px;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, filter 0.2s ease;
+  box-shadow: 0 10px 30px -10px rgba(251, 191, 36, 0.6);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 16px 44px -12px rgba(251, 191, 36, 0.85);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+/* Outline buton */
+.btn-outline {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: 12px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.btn-outline:hover {
+  border-color: rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+/* fadeUp animasyon */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.6s ease-out both;
+}
+
+/* Aşamalı gecikme için yardımcı sınıflar */
+.delay-1 {
+  animation-delay: 0.05s;
+}
+.delay-2 {
+  animation-delay: 0.12s;
+}
+.delay-3 {
+  animation-delay: 0.2s;
+}
+.delay-4 {
+  animation-delay: 0.28s;
+}
+.delay-5 {
+  animation-delay: 0.36s;
+}
+
+/* Type renk barları (sol kenarlık) */
+.bar-cancel {
+  box-shadow: inset 4px 0 0 0 #ef4444;
+}
+.bar-review {
+  box-shadow: inset 4px 0 0 0 #fbbf24;
+}
+.bar-warning {
+  box-shadow: inset 4px 0 0 0 #f97316;
+}
+.bar-keep {
+  box-shadow: inset 4px 0 0 0 #22c55e;
+}
+.bar-info {
+  box-shadow: inset 4px 0 0 0 #a78bfa;
+}
+
+/* Pulse dot (rozet için) */
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.2);
+  }
+}
+
+.pulse-dot {
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+/* Yavaş dönen analiz emojisi */
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.slow-spin {
+  animation: slowSpin 2.5s linear infinite;
+  display: inline-block;
+}
+
+/* Scrollbar ince, altın */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(251, 191, 36, 0.35);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 0.6);
+}
